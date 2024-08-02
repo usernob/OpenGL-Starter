@@ -51,3 +51,5 @@ _deps
 # Exclude Out Folder - As Everything there is compiled using CMake
 
 [Oo][Uu][Tt]
+[Bb]uild
+.cache
