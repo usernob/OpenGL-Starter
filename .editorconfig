@@ -1,7 +1,7 @@
 [cpp]
 indent_style = space
-indent_width = 2
-tab_width = 2
+indent_width = 4
+tab_width = 4
 braces = end_of_line
 trim_trailing_whitespace = true
 insert_final_newline = true
