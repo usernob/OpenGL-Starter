@@ -57,26 +57,6 @@ int main() {
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << "Current directory is: " << std::filesystem::current_path()
               << std::endl;
-    // clang-format off
-	float vertices[] = {
-		-0.90f, -0.50f, 0.0f,
-		-0.50f,  0.50f, 0.0f,
-		-0.10f, -0.50f, 0.0f,
-
-		 0.90f, -0.50f, 0.0f,
-		 0.50f,  0.50f, 0.0f,
-		 0.10f, -0.50f, 0.0f
-	};
-    // clang-format on
-
-    // Vertex Buffer Object
-    unsigned int VBO, VAO;
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
     std::string vertexShaderSource, fragmentShaderSource;
 
     // TODO: get PROJECT_SOURCE_DIR value from cmake
@@ -89,10 +69,41 @@ int main() {
         std::cerr << "Failed to create shader" << std::endl;
         return -1;
     }
+    // clang-format off
+	float vertices1[] = {
+		-0.90f, -0.50f, 0.0f,
+		-0.50f,  0.50f, 0.0f,
+		-0.10f, -0.50f, 0.0f,
+    };
+    float vertices2[] = {
+		 0.90f, -0.50f, 0.0f,
+		 0.50f,  0.50f, 0.0f,
+		 0.10f, -0.50f, 0.0f
+	};
+    // clang-format on
+
+    // Vertex Buffer Object
+    unsigned int VBO[2], VAO[2];
+    glGenBuffers(2, VBO);
+    glGenVertexArrays(2, VAO);
+
+    glBindVertexArray(VAO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
+
+    glBindVertexArray(VAO[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+                          (void *)0);
+    glEnableVertexAttribArray(0);
+
+
 
     // render loop
     // -----------
@@ -107,8 +118,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(program);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(VAO[0]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(VAO[1]);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
@@ -119,8 +132,8 @@ int main() {
 
     // optional: de-allocate all resources once they've outlive their purpose
     // ----------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(2, VAO);
+    glDeleteBuffers(2, VBO);
     glDeleteProgram(program);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
