@@ -59,9 +59,13 @@ int main() {
               << std::endl;
     // clang-format off
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
+		-0.90f, -0.50f, 0.0f,
+		-0.50f,  0.50f, 0.0f,
+		-0.10f, -0.50f, 0.0f,
+
+		 0.90f, -0.50f, 0.0f,
+		 0.50f,  0.50f, 0.0f,
+		 0.10f, -0.50f, 0.0f
 	};
     // clang-format on
 
@@ -104,7 +108,7 @@ int main() {
 
         glUseProgram(program);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
