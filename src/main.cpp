@@ -7,9 +7,9 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
-#include <sstream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -58,20 +58,42 @@ int main() {
     std::cout << "Current directory is: " << std::filesystem::current_path()
               << std::endl;
     // clang-format off
+
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
+		 0.5f,  0.5f, 0.0f, // top right
+		 0.5f, -0.5f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        -0.5f, 0.5f,0.0f  // top left
 	};
+
+    // represent the index of vertices like accessing vertices[n]
+    unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
     // clang-format on
 
     // Vertex Buffer Object
-    unsigned int VBO, VAO;
+    unsigned int VBO;
+
+    // Vertex Array Object
+    unsigned int VAO;
+
+    // Element Buffer Object
+    unsigned int EBO;
+
     glGenBuffers(1, &VBO);
     glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glGenBuffers(1, &EBO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STATIC_DRAW);
 
     std::string vertexShaderSource, fragmentShaderSource;
 
@@ -104,7 +126,10 @@ int main() {
 
         glUseProgram(program);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glPolygonMode(GL_FRONT_AND_BACK,
+                      GL_FILL); // to draw only stroke of shape
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse
         // moved etc.)
