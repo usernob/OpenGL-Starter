@@ -57,15 +57,19 @@ int main() {
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << "Current directory is: " << std::filesystem::current_path()
               << std::endl;
-    std::string vertexShaderSource, fragmentShaderSource;
+    std::string vertexShaderSource, fragment1ShaderSource, fragment2ShaderSource;
 
     // TODO: get PROJECT_SOURCE_DIR value from cmake
     readFile("resource/shaders/vertex.vert.glsl", vertexShaderSource);
-    readFile("resource/shaders/fragment.frag.glsl", fragmentShaderSource);
-    unsigned int program =
-        createShader(vertexShaderSource, fragmentShaderSource);
+    readFile("resource/shaders/fragment1.frag.glsl", fragment1ShaderSource);
+    readFile("resource/shaders/fragment2.frag.glsl", fragment2ShaderSource);
+    unsigned int program1 =
+        createShader(vertexShaderSource, fragment1ShaderSource);
 
-    if (program == 0) {
+    unsigned int program2 =
+        createShader(vertexShaderSource, fragment2ShaderSource);
+
+    if (program1 == 0) {
         std::cerr << "Failed to create shader" << std::endl;
         return -1;
     }
@@ -117,9 +121,11 @@ int main() {
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(program);
+        glUseProgram(program1);
         glBindVertexArray(VAO[0]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glUseProgram(program2);
         glBindVertexArray(VAO[1]);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -134,7 +140,8 @@ int main() {
     // ----------------------------------------------------------------------
     glDeleteVertexArrays(2, VAO);
     glDeleteBuffers(2, VBO);
-    glDeleteProgram(program);
+    glDeleteProgram(program1);
+    glDeleteProgram(program2);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
