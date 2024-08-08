@@ -11,8 +11,10 @@ project(OpenGLStarter)
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
 # Add all Header Files
-file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/src/*.h
-     ${CMAKE_SOURCE_DIR}/src/*.hpp)
+file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/include/*.h
+     ${CMAKE_SOURCE_DIR}/include/*.hpp)
+
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
@@ -31,7 +33,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # use wayland for creating window
 set(GLFW_USE_WAYLAND
-    ON
+    OFF
     CACHE BOOL "" FORCE)
 
 # Variables for Paths of External Libraries
@@ -50,6 +52,7 @@ add_subdirectory(${GLAD_ROOT_DIR})
 target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_ROOT_DIR}/include
                                                   ${GLAD_ROOT_DIR}/include/glad)
 
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 # Include Files from Outside the Workspace Folder -> Like Vulkan SDK
 
 # target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS} )

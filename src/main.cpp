@@ -1,20 +1,18 @@
 // STARTER CODE FROM learnopengl.com
 
 // clang-format off
+#include <cmath>
 #include <filesystem>
-#include <fstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
 #include <iostream>
-#include <sstream>
-#include <stdexcept>
 #include <string>
+#include <utils.hpp>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
-void readFile(const char *filename, std::string &output);
 unsigned int createShader(const std::string &vertexShader,
                           const std::string &fragmentShader);
 unsigned int compileShader(unsigned int type, const std::string &shader);
@@ -56,17 +54,23 @@ int main() {
 
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << "Current directory is: " << std::filesystem::current_path()
+              << "\n";
+
+    int nrAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+    std::cout << "Maximum nr of vertex attributs supported: " << nrAttributes
               << std::endl;
     // clang-format off
 
 	float vertices[] = {
-		 0.5f,  0.5f, 0.0f, // top right
-		 0.5f, -0.5f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f,0.0f  // top left
+        // position             // color
+		 0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   // top right
+		 0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f    // top left
 	};
 
-    // represent the index of vertices like accessing vertices[n]
+    // represent the index of vertices like accessing VBO[n]
     unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
@@ -87,8 +91,8 @@ int main() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &EBO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -98,8 +102,8 @@ int main() {
     std::string vertexShaderSource, fragmentShaderSource;
 
     // TODO: get PROJECT_SOURCE_DIR value from cmake
-    readFile("resource/shaders/vertex.vert.glsl", vertexShaderSource);
-    readFile("resource/shaders/fragment.frag.glsl", fragmentShaderSource);
+    utils::readFile("resource/shaders/vertex.vert.glsl", vertexShaderSource);
+    utils::readFile("resource/shaders/fragment.frag.glsl", fragmentShaderSource);
     unsigned int program =
         createShader(vertexShaderSource, fragmentShaderSource);
 
@@ -108,9 +112,20 @@ int main() {
         return -1;
     }
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+    // position attributs
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
+
+    // color attributs
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // unbind 
+    glBindVertexArray(0); // unbind vao first before unbind other buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // render loop
     // -----------
@@ -124,7 +139,11 @@ int main() {
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        // float timeValue = glfwGetTime();
+        // float greenValue = (std::sin(timeValue) / 2.0f) + 0.5f;
+        // int vertexColorLocation = glGetUniformLocation(program, "ourColor");
         glUseProgram(program);
+        // glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         glBindVertexArray(VAO);
         glPolygonMode(GL_FRONT_AND_BACK,
                       GL_FILL); // to draw only stroke of shape
@@ -142,6 +161,7 @@ int main() {
     // ----------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glDeleteProgram(program);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
@@ -168,23 +188,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void readFile(const char *filename, std::string &output) {
-    std::ifstream file(filename);
-
-    if (!file.is_open()) {
-        std::cerr << "file: " << filename << std::endl;
-        throw std::runtime_error("Failed to read file");
-    }
-
-    std::stringstream ss;
-    std::string line;
-    while (std::getline(file, line)) {
-        ss << line << "\n";
-    }
-
-    output = ss.str();
-    file.close();
-}
 
 unsigned int createShader(const std::string &vertexShader,
                           const std::string &fragmentShader) {

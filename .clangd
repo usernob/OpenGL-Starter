@@ -1,0 +1,7 @@
+Style:
+  FullyQualifiedNamespaces: Yes
+
+InlayHints:
+  Designators: No
+  TypeNameLimit: 24
+  BlockEnd: Yes
