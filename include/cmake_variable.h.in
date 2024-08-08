@@ -1,0 +1,6 @@
+#ifndef CMAKE_VARIABLE_H
+#define CMAKE_VARIABLE_H
+
+#define SOURCE_PATH "@CMAKE_SOURCE_DIR@/"
+
+#endif // !CMAKE_VARIABLE_H

@@ -7,60 +7,41 @@ cmake_minimum_required(VERSION 3.20.0 FATAL_ERROR)
 
 project(OpenGLStarter)
 
+# tell cmake to generate compile_commands.json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add all Source Files
 file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-# Add all Header Files
-file(GLOB_RECURSE HEADER_FILES ${CMAKE_SOURCE_DIR}/src/*.h
-     ${CMAKE_SOURCE_DIR}/src/*.hpp)
-
-add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Find the Required Packages (if Any -> OpenGL/Vulkan or Any)
 find_package(OpenGL REQUIRED)
 
 # Variable for the Libs to add to the Linkers
 if(WIN32)
-  set(LIBS glfw opengl32 glad)
+  set(LIBS opengl32)
 elseif(UNIX)
-  set(LIBS glfw GL glad)
+  set(LIBS GL)
 endif()
-
-# tell cmake to generate compile_commands.json file
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # use wayland for creating window
 set(GLFW_USE_WAYLAND
     ON
     CACHE BOOL "" FORCE)
 
-# Variables for Paths of External Libraries
-set(GLFW_ROOT_DIR external/glfw)
-set(GLAD_ROOT_DIR external/glad)
-
 # Add the External Libraries / Files Directory
-add_subdirectory(${GLFW_ROOT_DIR})
-add_subdirectory(${GLAD_ROOT_DIR})
+add_subdirectory(external)
 
-# Add the Include Directories for the Libraries / Files Used for adding #include
-# into the cpp files
+configure_file(include/cmake_variable.h.in include/cmake_variable.h @ONLY)
 
-# Include Files From Within the Workspace Folder
-
-target_include_directories(${PROJECT_NAME} PUBLIC ${GLFW_ROOT_DIR}/include
-                                                  ${GLAD_ROOT_DIR}/include/glad)
+target_include_directories(
+  ${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include
+                          ${PROJECT_BINARY_DIR}/include)
 
 # Include Files from Outside the Workspace Folder -> Like Vulkan SDK
 
 # target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS} )
-
-# Add the Link Directories for the Libraries / Files Used for creation of
-# Static/Dynamic Libraries
-
-# Include Files From Within the Workspace Folder
-
-target_link_directories(${PROJECT_NAME} PRIVATE ${GLFW_ROOT_DIR}/src PRIVATE
-                        ${GLAD_ROOT_DIR}/src})
 
 # Add the Libs to the Linker for the Project
 
