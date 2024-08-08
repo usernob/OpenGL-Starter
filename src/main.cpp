@@ -7,8 +7,10 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 #include <iostream>
+#include <stb_image.h>
 #include <string>
 #include <utils.hpp>
+#include <cmake_variable.h>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -55,6 +57,7 @@ int main() {
     std::cout << glGetString(GL_VERSION) << "\n";
     std::cout << "Current directory is: " << std::filesystem::current_path()
               << "\n";
+    std::cout << "project path is: " << SOURCE_PATH << "\n";
 
     int nrAttributes;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
@@ -99,13 +102,16 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
-    std::string vertexShaderSource, fragmentShaderSource;
+    std::string vertexShaderSrc, fragmentShaderSrc;
 
-    // TODO: get PROJECT_SOURCE_DIR value from cmake
-    utils::readFile("resource/shaders/vertex.vert.glsl", vertexShaderSource);
-    utils::readFile("resource/shaders/fragment.frag.glsl", fragmentShaderSource);
-    unsigned int program =
-        createShader(vertexShaderSource, fragmentShaderSource);
+    utils::readFile(SOURCE_PATH "resource/shaders/vertex.vert.glsl", vertexShaderSrc);
+    utils::readFile(SOURCE_PATH "resource/shaders/fragment.frag.glsl", fragmentShaderSrc);
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(SOURCE_PATH "resource/texture/container.jpg", &width,
+                                    &height, &nrChannels, 0);
+
+    unsigned int program = createShader(vertexShaderSrc, fragmentShaderSrc);
 
     if (program == 0) {
         std::cerr << "Failed to create shader" << std::endl;
@@ -122,7 +128,7 @@ int main() {
                           (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // unbind 
+    // unbind
     glBindVertexArray(0); // unbind vao first before unbind other buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -187,7 +193,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     // displays.
     glViewport(0, 0, width, height);
 }
-
 
 unsigned int createShader(const std::string &vertexShader,
                           const std::string &fragmentShader) {
