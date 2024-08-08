@@ -12,6 +12,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC glfw/include
 # Static/Dynamic Libraries
 
 # Include Files From Within the Workspace Folder
-target_link_directories(${PROJECT_NAME} PRIVATE glfw/src PRIVATE glad/src})
+target_link_directories(${PROJECT_NAME} PRIVATE glfw/src PRIVATE glad/src)
 
 target_link_libraries(${PROJECT_NAME} glad glfw)
